@@ -27,12 +27,11 @@ const w = 500
 const h = 500
 
 function run() {
-
   fetch(
-      'https://us-congress-districts.api.aclu.org/districts?ids=8072-8102-8132-8162-8194-8226-8258-8530-8553-8581-8604-8616-8640-8664-8691'
-    )
+    'https://us-congress-districts.api.aclu.org/districts?ids=8072-8102-8132-8162-8194-8226-8258-8530-8553-8581-8604-8616-8640-8664-8691'
+  )
     .then(function(response) {
-      return response.json();
+      return response.json()
     })
     .then(result => {
       const houstonData = initializeData(result.results)
@@ -42,17 +41,39 @@ function run() {
       const geoPath = d3.geoPath().projection(projection) // d3.geo.path().projection(projection)
 
       for (let j = 0; j < houstonData.features.length - 1; j++) {
-        var previewFeature1 = houstonData.features[j] //.geometry.coordinates[0]
-        var previewFeature2 = houstonData.features[j + 1] //.geometry.coordinates[0]
+        var previewFeature1 = houstonData.features[j]
+        var previewFeature2 = houstonData.features[j + 1]
 
         var interpolator = interpolate(
           geoPath(previewFeature1),
           geoPath(previewFeature2)
         )
-
+        var divForSvg
         for (let i = 0; i < 1.01; i += 0.1) {
-          var svg = d3
+          var divForSvg = d3
             .select('div#container')
+            .append('div')
+            .attr('class', 'svg-container')
+
+          if (i < 0.01)
+            divForSvg
+              .append('div')
+              .attr('class', 'label')
+              .html(
+                previewFeature1.properties.startYear +
+                  ' to ' +
+                  previewFeature1.properties.endYear
+              )
+          if (i > 0.99 && j === houstonData.features.length - 2)
+            divForSvg
+              .append('div')
+              .attr('class', 'label')
+              .html(
+                previewFeature2.properties.startYear +
+                  ' to ' +
+                  previewFeature2.properties.endYear
+              )
+          var svg = divForSvg
             .append('svg')
             .attr('width', w)
             .attr('height', h)
@@ -70,4 +91,3 @@ function run() {
     })
 }
 run()
-
